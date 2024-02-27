@@ -1,5 +1,7 @@
-import 'package:flatter1_exam/pages/addcard_page.dart';
+import 'package:flatter1_exam/pages/derailes_page.dart';
 import 'package:flutter/material.dart';
+
+import '../models/credit_card_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,77 +11,101 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<CreditCard> cards = [
+    CreditCard(
+        cardNumber: '8888 8888 8888 8888',
+        expiredDate: '12/12',
+        cardType: 'visa',
+        cardImage: 'assets/images/ic_card_visa.png'),
+    CreditCard(
+        cardNumber: '7777 7777 7777 7777',
+        expiredDate: '12/20',
+        cardType: 'master',
+        cardImage: 'assets/images/ic_card_master.png'),
+  ];
 
-  Future _addCardPage() async {
-    String number = '**** **** **** ****';
-    String date = '**/**';
-    List item = await Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-      return AddCardPage(cardNumber: number,cardDate: date,);
-    }));
+  Future _openDetailsPage() async {
+    CreditCard result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return const DetailsPage();
+        },
+      ),
+    );
+
+    setState(() {
+      cards.add(result);
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:Text("Card List"),
-
+        backgroundColor: Colors.white,
+        title: const Text('My Cards'),
       ),
-
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              children: [
-                Divider(),
-                _cardList("assets/images/ic_card_master.png", "**** **** **** ****","11/25"),
-                _cardList("assets/images/ic_card_visa.png", "**** **** **** ****","11/25"),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
-            child: MaterialButton(
-              child: Container(
-                height: 50,
-                child: Center(
-                  child: Text("Add Card",style: TextStyle(color: Colors.white),),
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-
+      body: Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 30),
+                itemCount: cards.length,
+                itemBuilder: (ctx, i) {
+                  return _itemOfCardList(cards[i]);
+                },
               ),
-              onPressed: (){
-                _addCardPage();
-              }
             ),
-          )
-        ],
-      )
+            Container(
+              width: double.infinity,
+              height: 45,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.blue,
+              ),
+              child: MaterialButton(
+                onPressed: () {
+                  _openDetailsPage();
+                },
+                child: const Text(
+                  'Add Card',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _cardList(cardType,cardNumber,cardDate){
-    return  Container(
-      padding: EdgeInsets.all(10),
-      height:100,
-      child:Row(
+  Widget _itemOfCardList(CreditCard creditCard) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      height: 70,
+      width: double.infinity,
+      child: Row(
         children: [
           Container(
-            width: 100,
-            height: 50,
-            child: Image(
-              image: AssetImage(cardType),
-            ),
+            margin: const EdgeInsets.only(right: 15),
+            child: Image(image: AssetImage(creditCard.cardImage!)),
           ),
-          SizedBox(width: 5,),
           Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(cardNumber),
-              Text(cardDate),
+              Text(
+                '**** **** **** ${creditCard.cardNumber!.substring(creditCard.cardNumber!.length - 4)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                creditCard.expiredDate!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           )
         ],
